@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../data/cities.dart';
+import '../data/remote_config.dart';
 import '../theme.dart';
 import '../ui/common.dart';
 import '../util/l10n.dart';
@@ -119,22 +120,21 @@ class AboutScreen extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 10),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              Text(
-                                '×${c.serviceFactor.toStringAsFixed(2)}',
-                                style: AppText.mono(size: 13),
-                              ),
-                              if (!c.isNational ||
-                                  c.feeFactor != c.serviceFactor)
-                                Text(
-                                  '×${c.feeFactor.toStringAsFixed(2)}',
-                                  style: AppText.mono(
-                                      size: 13, color: AppColors.inkSoft),
-                                ),
-                            ],
-                          ),
+                          Builder(builder: (_) {
+                            final svc = RemoteConfig.instance.serviceFactor(c);
+                            final fee = RemoteConfig.instance.feeFactor(c);
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.end,
+                              children: [
+                                Text('×${svc.toStringAsFixed(2)}',
+                                    style: AppText.mono(size: 13)),
+                                if (!c.isNational || fee != svc)
+                                  Text('×${fee.toStringAsFixed(2)}',
+                                      style: AppText.mono(
+                                          size: 13, color: AppColors.inkSoft)),
+                              ],
+                            );
+                          }),
                         ],
                       ),
                     ),

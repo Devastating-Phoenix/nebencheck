@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "dataYear": "2024",
+  "updated": "2026-07-06",
+  "_comment": "Runtime reference data for NebenCheck. The app fetches this file from GitHub raw at startup and overrides its compiled-in defaults; missing keys fall back to those defaults. 'national' = €/m²/month per cost category (DMB Betriebskostenspiegel). 'cities' = per-city multipliers: service (building-service wages, DMB state totals) and fee (municipal charges, Haus & Grund / IW ranking). Corrections welcome via pull request — cite a source.",
+  "national": {
+    "grundsteuer": 0.19,
+    "wasser": 0.34,
+    "heizung": 1.10,
+    "warmwasser": 0.27,
+    "aufzug": 0.17,
+    "strassenreinigung": 0.03,
+    "muell": 0.19,
+    "reinigung": 0.19,
+    "garten": 0.10,
+    "strom": 0.06,
+    "schornstein": 0.03,
+    "versicherung": 0.25,
+    "hauswart": 0.23,
+    "kabel": 0.12,
+    "waesche": 0.03,
+    "sonstige": 0.06
+  },
+  "cities": {
+    "de": { "service": 1.00, "fee": 1.00 },
+    "berlin": { "service": 1.05, "fee": 1.25 },
+    "hamburg": { "service": 1.02, "fee": 1.02 },
+    "muenchen": { "service": 0.97, "fee": 0.81 },
+    "koeln": { "service": 1.01, "fee": 0.92 },
+    "frankfurt": { "service": 0.98, "fee": 0.77 },
+    "stuttgart": { "service": 1.04, "fee": 0.81 },
+    "duesseldorf": { "service": 1.01, "fee": 0.85 },
+    "nuernberg": { "service": 0.97, "fee": 0.83 },
+    "bremen": { "service": 0.97, "fee": 1.14 },
+    "hannover": { "service": 0.95, "fee": 0.95 },
+    "essen": { "service": 1.01, "fee": 1.10 },
+    "leipzig": { "service": 0.83, "fee": 0.99 },
+    "dresden": { "service": 0.83, "fee": 1.02 }
+  }
+}

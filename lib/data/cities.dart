@@ -48,7 +48,7 @@ class City {
   bool get isNational => id == 'de';
 
   /// Categories that are municipal charges.
-  static const _feeCategories = {
+  static const feeCategories = {
     'grundsteuer',
     'wasser',
     'muell',
@@ -56,17 +56,19 @@ class City {
   };
 
   /// Categories priced on national markets — never scaled.
-  static const _nationalCategories = {
+  static const nationalCategories = {
     'heizung',
     'warmwasser',
     'versicherung',
     'kabel',
   };
 
-  /// The factor to apply to [categoryId]'s national reference value.
+  /// The factor to apply to [categoryId]'s national reference value, using
+  /// this city's compiled-in factors. The runtime override path lives in
+  /// [RemoteConfig.factorFor], which mirrors this classification.
   double factorFor(String categoryId) {
-    if (_feeCategories.contains(categoryId)) return feeFactor;
-    if (_nationalCategories.contains(categoryId)) return 1.0;
+    if (feeCategories.contains(categoryId)) return feeFactor;
+    if (nationalCategories.contains(categoryId)) return 1.0;
     return serviceFactor;
   }
 }

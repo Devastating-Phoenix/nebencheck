@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/foundation.dart';
 
+import '../data/remote_config.dart';
 import '../data/samples.dart';
 import '../logic/analyzer.dart';
 import '../logic/storage.dart';
@@ -30,6 +31,11 @@ class AppState extends ChangeNotifier {
             ? 'de'
             : 'en');
     history = await Storage.loadHistory();
+    // Pull the latest reference values / city factors (falls back silently to
+    // the compiled defaults on any failure). Re-analyze an open report so a
+    // just-loaded correction is reflected immediately.
+    await RemoteConfig.instance.load();
+    if (report != null) report = Analyzer.analyze(draft);
     notifyListeners();
   }
 

@@ -42,6 +42,14 @@ Every value should be traceable to a published figure. Interpolations are allowe
 where no published value exists, but they must be marked as estimates (see the
 `note` fields in `cities.dart`).
 
+The live app reads its values from [`references.json`](references.json) (fetched
+from this branch at startup), falling back to the compiled Dart defaults if that
+file is unreachable. **A merged change to `references.json` goes live within
+minutes — no app rebuild.** A scheduled GitHub Action
+([`betriebskosten-watch.yml`](.github/workflows/betriebskosten-watch.yml)) also
+watches for a newer DMB Betriebskostenspiegel and opens a PR with the proposed
+numbers for review.
+
 ---
 
 ## What it checks

@@ -1,0 +1,48 @@
+name: Betriebskosten watcher
+
+# Checks whether a newer DMB Betriebskostenspiegel has been published and, if so,
+# opens a pull request updating references.json. Never touches production
+# directly — every change is a reviewed PR. See scripts/check_betriebskosten.py.
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"     # every Monday 06:00 UTC
+  workflow_dispatch: {}      # lets you run it on demand from the Actions tab
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install anthropic requests pydantic
+
+      - name: Check for new reference data
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: python scripts/check_betriebskosten.py
+
+      - name: Open a pull request if the data changed
+        uses: peter-evans/create-pull-request@v6
+        with:
+          branch: data/betriebskosten-update
+          add-paths: references.json
+          commit-message: "Update reference values from new Betriebskostenspiegel"
+          title: "Update Betriebskostenspiegel reference values"
+          body: |
+            An automated check detected a newer DMB Betriebskostenspiegel and
+            proposed these reference values.
+
+            **Please verify each number against the source before merging** —
+            https://mieterbund.de/service/checks-formulare/betriebskosten/betriebskostenspiegel/
+
+            Once merged, the new values go live on the app within minutes (no
+            rebuild needed — the app reads references.json from the main branch).

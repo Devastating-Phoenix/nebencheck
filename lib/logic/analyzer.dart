@@ -1,5 +1,6 @@
 import '../data/benchmarks.dart';
 import '../data/cities.dart';
+import '../data/remote_config.dart';
 import '../models/models.dart';
 import '../util/format.dart';
 import '../util/l10n.dart';
@@ -35,7 +36,9 @@ class Analyzer {
     for (final entry in data.entries) {
       if (!entry.included || entry.amount <= 0) continue;
       totalCosts += entry.amount;
-      benchmarkSum += entry.category.benchmark * city.factorFor(entry.category.id);
+      benchmarkSum += RemoteConfig.instance.nat(
+              entry.category.id, entry.category.benchmark) *
+          RemoteConfig.instance.factorFor(city, entry.category.id);
       positions.add(_checkEntry(entry, safeDivisor, data.periodEnd, city));
     }
 
@@ -208,7 +211,8 @@ class Analyzer {
     City city,
   ) {
     final c = entry.category;
-    final reference = c.benchmark * city.factorFor(c.id);
+    final reference = RemoteConfig.instance.nat(c.id, c.benchmark) *
+        RemoteConfig.instance.factorFor(city, c.id);
     final perSqmMonth = entry.amount / divisor;
     final ratio = reference > 0 ? perSqmMonth / reference : 0.0;
     final benchmarkTotal = reference * divisor;
@@ -310,7 +314,8 @@ class Analyzer {
 
     // Compare unmatched custom items against the "Sonstige" reference,
     // scaled by the city's service level (sonstige = a service category).
-    final sonstigeBenchmark = 0.06 * city.factorFor('sonstige');
+    final sonstigeBenchmark = RemoteConfig.instance.nat('sonstige', 0.06) *
+        RemoteConfig.instance.factorFor(city, 'sonstige');
     final ratio = perSqmMonth / sonstigeBenchmark;
     if (ratio >= highThreshold) {
       final pct = ((ratio - 1) * 100).round();

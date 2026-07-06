@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../data/cities.dart';
+import '../data/remote_config.dart';
 import '../logic/analyzer.dart';
 import '../logic/calendar.dart';
 import '../logic/storage.dart';
@@ -177,26 +178,33 @@ class ResultsScreen extends StatelessWidget {
                         : city.name,
                   ),
                   if (!city.isNational)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 6),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              tr(
-                                'Local adjustment · services ×${city.serviceFactor.toStringAsFixed(2)} · fees ×${city.feeFactor.toStringAsFixed(2)}',
-                                'Regionale Anpassung · Dienste ×${city.serviceFactor.toStringAsFixed(2)} · Gebühren ×${city.feeFactor.toStringAsFixed(2)}',
-                              ),
-                              style: const TextStyle(
-                                fontSize: 11.5,
-                                color: AppColors.inkSoft,
-                                fontStyle: FontStyle.italic,
+                    Builder(builder: (_) {
+                      final svc = RemoteConfig.instance
+                          .serviceFactor(city)
+                          .toStringAsFixed(2);
+                      final fee =
+                          RemoteConfig.instance.feeFactor(city).toStringAsFixed(2);
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                tr(
+                                  'Local adjustment · services ×$svc · fees ×$fee',
+                                  'Regionale Anpassung · Dienste ×$svc · Gebühren ×$fee',
+                                ),
+                                style: const TextStyle(
+                                  fontSize: 11.5,
+                                  color: AppColors.inkSoft,
+                                  fontStyle: FontStyle.italic,
+                                ),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
+                          ],
+                        ),
+                      );
+                    }),
                   if (prevTotalPerSqm != null && prevTotalPerSqm > 0)
                     _kv(
                       tr('vs your $prevYear check',
