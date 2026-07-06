@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - run: pip install anthropic requests pydantic
+      - run: pip install anthropic requests
 
       - name: Check for new reference data
         env:
