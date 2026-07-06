@@ -109,4 +109,11 @@ lib/
 
 ## License
 
-[MIT](LICENSE). Contributions welcome under the same license.
+[PolyForm Noncommercial License 1.0.0](LICENSE) — free to use, modify, and share
+for **any non-commercial purpose** (personal use, study, non-profits, public
+institutions). **Commercial use is not permitted** without a separate license
+from the copyright holder, who reserves all commercial rights.
+
+Contributions are welcome under the same terms: by opening a pull request you
+agree your contribution is licensed under this license, and you grant the
+project's copyright holder the right to use it (including commercially).
