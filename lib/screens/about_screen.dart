@@ -4,6 +4,7 @@ import '../data/cities.dart';
 import '../theme.dart';
 import '../ui/common.dart';
 import '../util/l10n.dart';
+import '../util/save_file.dart';
 
 /// "Anlage" to the audit form: what NebenCheck does, why the city
 /// matters, how the score works, and what the limits are.
@@ -153,6 +154,50 @@ class AboutScreen extends StatelessWidget {
               "National reference values are the DMB Betriebskostenspiegel for accounting year 2024 (national average 2,67 €/m²/month). Service factors use the DMB state-level totals (e.g. Berlin 2,81, Bavaria 2,58, Saxony 2,21 €/m²). Fee factors use the Haus & Grund / IW Consult Nebenkostenranking of the 100 largest cities (property tax, water and waste fees; Munich 1.058 €, Berlin 1.619 € per year). Where no published state value exists, a service factor is interpolated (marked \"estimate\" in the table). All of these are guide values: your building's age, heating system and contracts legitimately move costs. A yellow or red mark is a reason to ask for receipts — not proof of an error. NebenCheck is a university prototype and does not replace advice from a Mieterverein or a lawyer.",
               'Die bundesweiten Referenzwerte stammen aus dem DMB-Betriebskostenspiegel für das Abrechnungsjahr 2024 (Bundesdurchschnitt 2,67 €/m²/Monat). Die Dienstefaktoren nutzen die DMB-Landeswerte (z. B. Berlin 2,81, Bayern 2,58, Sachsen 2,21 €/m²). Die Gebührenfaktoren nutzen das Nebenkostenranking von Haus & Grund / IW Consult der 100 größten Städte (Grundsteuer, Wasser- und Müllgebühren; München 1.058 €, Berlin 1.619 € pro Jahr). Fehlt ein veröffentlichter Landeswert, wird der Dienstefaktor interpoliert (in der Tabelle mit „Schätzung" markiert). All das sind Richtwerte: Alter des Gebäudes, Heizungsanlage und Verträge verschieben Kosten legitim. Gelb oder Rot ist ein Anlass, Belege anzufordern — kein Beweis für einen Fehler. NebenCheck ist ein Hochschul-Prototyp und ersetzt keine Beratung durch Mieterverein oder Anwalt.',
             )),
+            const SizedBox(height: 18),
+            SectionLabel(tr('How the data is updated',
+                'Wie die Daten aktualisiert werden')),
+            _Body(tr(
+              'NebenCheck is open source. The reference values and city factors live in a public GitHub repository, versioned so every change is traceable. They are updated when a new survey is published — the DMB Betriebskostenspiegel comes out yearly (around December); the Haus & Grund fee ranking less regularly. Because the project is public, anyone who spots an outdated or incorrect value can open an issue or propose a fix; changes are reviewed before they ship. If a number here looks wrong to you, please contribute a correction.',
+              'NebenCheck ist quelloffen. Die Referenzwerte und Stadtfaktoren liegen in einem öffentlichen GitHub-Repository, versioniert, sodass jede Änderung nachvollziehbar ist. Sie werden aktualisiert, sobald eine neue Erhebung erscheint — der DMB-Betriebskostenspiegel jährlich (etwa im Dezember), das Gebührenranking von Haus & Grund seltener. Da das Projekt öffentlich ist, kann jede Person einen veralteten oder falschen Wert melden oder eine Korrektur vorschlagen; Änderungen werden vor der Veröffentlichung geprüft. Wenn Ihnen ein Wert hier falsch erscheint, tragen Sie bitte eine Korrektur bei.',
+            )),
+            const SizedBox(height: 12),
+            _RepoLink(),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Tappable "View / contribute on GitHub" row. The URL is filled in once
+/// the public repository exists; until then it points to the org handle.
+class _RepoLink extends StatelessWidget {
+  static const _url = 'https://github.com/Devastating-Phoenix/nebencheck';
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => openExternal(_url),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(
+          children: [
+            const Icon(Icons.open_in_new_rounded,
+                size: 16, color: AppColors.primary),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                tr('View source & suggest a correction on GitHub →',
+                    'Quellcode ansehen & Korrektur vorschlagen auf GitHub →'),
+                style: const TextStyle(
+                  fontSize: 13,
+                  height: 1.4,
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
           ],
         ),
       ),
