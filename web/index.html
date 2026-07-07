@@ -120,12 +120,20 @@
         } else {
           input.accept = '.docx,.doc,.pdf,.txt';
         }
-        // Mobile browsers only open the picker for an input that is in the DOM.
+        // Mobile browsers (iOS Safari especially) only open the picker for an
+        // input that is in the DOM AND within the viewport — an off-screen or
+        // display:none input is silently ignored. So keep it on-screen but
+        // effectively invisible: a 1px, fully transparent box in the corner.
         input.style.position = 'fixed';
-        input.style.left = '-10000px';
+        input.style.left = '0';
         input.style.top = '0';
+        input.style.width = '1px';
+        input.style.height = '1px';
         input.style.opacity = '0';
+        input.style.border = '0';
+        input.style.padding = '0';
         input.setAttribute('aria-hidden', 'true');
+        input.setAttribute('tabindex', '-1');
         var done = false;
         function finish(text) {
           if (done) return;
