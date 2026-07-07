@@ -45,17 +45,31 @@
         var input = document.createElement('input');
         input.type = 'file';
         input.accept = 'image/*';
+        // Mobile Safari/Chrome only open the picker for an input that is
+        // actually in the DOM — keep it present but visually hidden.
+        input.style.position = 'fixed';
+        input.style.left = '-10000px';
+        input.style.top = '0';
+        input.style.opacity = '0';
+        input.setAttribute('aria-hidden', 'true');
         var done = false;
+        function finish(text) {
+          if (done) return;
+          done = true;
+          try { input.remove(); } catch (e) {}
+          resolve(text);
+        }
         input.onchange = function () {
           var file = input.files && input.files[0];
-          if (!file) { if (!done) { done = true; resolve(''); } return; }
-          if (typeof Tesseract === 'undefined') { done = true; resolve(''); return; }
+          if (!file) { finish(''); return; }
+          if (typeof Tesseract === 'undefined') { finish(''); return; }
           Tesseract.recognize(file, 'deu')
-            .then(function (r) { done = true; resolve((r && r.data && r.data.text) || ''); })
-            .catch(function () { done = true; resolve(''); });
+            .then(function (r) { finish((r && r.data && r.data.text) || ''); })
+            .catch(function () { finish(''); });
         };
         // Fire if the dialog is dismissed without a selection.
-        input.oncancel = function () { if (!done) { done = true; resolve(''); } };
+        input.oncancel = function () { finish(''); };
+        document.body.appendChild(input);
         input.click();
       });
     };
