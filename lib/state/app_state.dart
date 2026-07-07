@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import '../data/remote_config.dart';
 import '../data/samples.dart';
 import '../logic/analyzer.dart';
+import '../logic/statement_parser.dart';
 import '../logic/storage.dart';
 import '../models/models.dart';
 import '../util/l10n.dart';
@@ -57,6 +58,28 @@ class AppState extends ChangeNotifier {
     draft = Samples.empty();
     report = null;
     notifyListeners();
+  }
+
+  /// Prefills a fresh draft from an OCR-parsed statement (the "upload a photo"
+  /// beta). Only fields the parser is confident about are set; everything is a
+  /// draft the user then reviews and corrects on the form. Returns the number
+  /// of fields filled so the UI can report how much was recognized.
+  int applyParsed(ParsedStatement p) {
+    draft = Samples.empty();
+    report = null;
+    if (p.apartmentSize != null) draft.apartmentSize = p.apartmentSize!;
+    if (p.prepaid != null) draft.prepaid = p.prepaid!;
+    if (p.periodStart != null) draft.periodStart = p.periodStart!;
+    if (p.periodEnd != null) draft.periodEnd = p.periodEnd!;
+    for (final e in draft.entries) {
+      final amount = p.amounts[e.category.id];
+      if (amount != null) {
+        e.included = true;
+        e.amount = amount;
+      }
+    }
+    notifyListeners();
+    return p.fieldCount;
   }
 
   /// Loads the built-in demo statement and analyzes it immediately.

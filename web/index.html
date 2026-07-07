@@ -33,6 +33,33 @@
 
   <title>NebenCheck — Audit your Nebenkosten</title>
   <link rel="manifest" href="manifest.json">
+
+  <!-- Tesseract.js: on-device OCR for the "upload a photo" feature (beta).
+       Runs entirely in the browser (WASM) — the image never leaves the device. -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+  <script>
+    // Opens an image picker, runs German OCR, resolves with the text
+    // ("" on cancel or failure). Called from Dart via dart:js_interop.
+    window.ncRunOcr = function () {
+      return new Promise(function (resolve) {
+        var input = document.createElement('input');
+        input.type = 'file';
+        input.accept = 'image/*';
+        var done = false;
+        input.onchange = function () {
+          var file = input.files && input.files[0];
+          if (!file) { if (!done) { done = true; resolve(''); } return; }
+          if (typeof Tesseract === 'undefined') { done = true; resolve(''); return; }
+          Tesseract.recognize(file, 'deu')
+            .then(function (r) { done = true; resolve((r && r.data && r.data.text) || ''); })
+            .catch(function () { done = true; resolve(''); });
+        };
+        // Fire if the dialog is dismissed without a selection.
+        input.oncancel = function () { if (!done) { done = true; resolve(''); } };
+        input.click();
+      });
+    };
+  </script>
   <style>
     html, body { background: #EEEDE3; margin: 0; height: 100%; }
     #nc-splash {

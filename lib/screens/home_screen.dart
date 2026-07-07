@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../data/cities.dart';
+import '../logic/ocr.dart';
+import '../logic/statement_parser.dart';
 import '../logic/storage.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
@@ -137,6 +139,8 @@ class HomeScreen extends StatelessWidget {
               },
               child: Text(tr('See a demo analysis', 'Demo-Analyse ansehen')),
             ),
+            const SizedBox(height: 10),
+            const _UploadButton(),
             if (history.isNotEmpty) ...[
               const SizedBox(height: 30),
               Row(
@@ -255,6 +259,103 @@ class HomeScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// "Upload a photo of your statement" (beta): runs on-device OCR, parses the
+/// text, and prefills the form for the user to review. Web-only; elsewhere the
+/// OCR bridge is inert and the tap just reports that nothing was found.
+class _UploadButton extends StatefulWidget {
+  const _UploadButton();
+
+  @override
+  State<_UploadButton> createState() => _UploadButtonState();
+}
+
+class _UploadButtonState extends State<_UploadButton> {
+  bool _running = false;
+  double _progress = 0;
+
+  Future<void> _run() async {
+    if (_running) return;
+    setState(() {
+      _running = true;
+      _progress = 0;
+    });
+    String? text;
+    try {
+      text = await pickAndRecognize(
+        onProgress: (p) {
+          if (mounted) setState(() => _progress = p);
+        },
+      );
+    } finally {
+      if (mounted) setState(() => _running = false);
+    }
+    if (!mounted) return;
+
+    if (text == null || text.trim().isEmpty) {
+      _snack(tr(
+        "Couldn't read that image. Try a sharper, straight-on photo in good light — or enter the numbers manually.",
+        'Das Bild konnte nicht gelesen werden. Versuchen Sie ein schärferes, gerades Foto bei gutem Licht — oder geben Sie die Zahlen manuell ein.',
+      ));
+      return;
+    }
+
+    final parsed = StatementParser.parse(text);
+    if (parsed.isEmpty) {
+      _snack(tr(
+        'No statement figures were recognized. You can still enter them manually.',
+        'Es wurden keine Abrechnungswerte erkannt. Sie können sie manuell eingeben.',
+      ));
+      return;
+    }
+
+    final n = context.read<AppState>().applyParsed(parsed);
+    Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => const StatementFormScreen()),
+    );
+    _snack(tr(
+      'Recognized $n field(s). Please check everything against your statement before analyzing.',
+      '$n Feld(er) erkannt. Bitte vor der Prüfung alles mit Ihrer Abrechnung abgleichen.',
+    ));
+  }
+
+  void _snack(String msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_running) {
+      return OutlinedButton(
+        onPressed: null,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              width: 16,
+              height: 16,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                value: _progress > 0 ? _progress : null,
+              ),
+            ),
+            const SizedBox(width: 10),
+            Text(_progress > 0
+                ? tr('Reading… ${(_progress * 100).round()}%',
+                    'Lese… ${(_progress * 100).round()}%')
+                : tr('Reading photo…', 'Foto wird gelesen…')),
+          ],
+        ),
+      );
+    }
+    return OutlinedButton.icon(
+      onPressed: _run,
+      icon: const Icon(Icons.photo_camera_outlined, size: 19),
+      label: Text(tr('Upload a photo of your statement (beta)',
+          'Foto der Abrechnung hochladen (Beta)')),
     );
   }
 }
