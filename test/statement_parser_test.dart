@@ -274,4 +274,48 @@ Nachzahlung                    803,00 €
       });
     });
   });
+
+  // The exact text shapes mammoth (Word .docx) and FileReader (.txt) produced
+  // when run on real files in the browser (captured during integration
+  // testing): mammoth separates paragraphs with blank lines and keeps a real
+  // "m²"; .txt comes back with CRLF endings. Both must parse cleanly.
+  group('document-extracted text end-to-end', () {
+    const header = [
+      'Hausverwaltung Schmidt GmbH',
+      'Betriebskostenabrechnung 2024',
+      'Wohnfläche: 62 m²',
+      'Abrechnungszeitraum 01.01.2024 - 31.12.2024',
+    ];
+    const items = [
+      'Grundsteuer 168,00',
+      'Wasser/Abwasser 310,00',
+      'Heizung 1.020,00',
+      'Warmwasser 210,00',
+      'Müllbeseitigung 165,00',
+      'Gebäudereinigung 260,00',
+      'Allgemeinstrom 55,00',
+      'Gebäudeversicherung 230,00',
+      'Hauswart 340,00',
+      'Vorauszahlungen 1.980,00',
+    ];
+
+    void expectAll(ParsedStatement r) {
+      expect(r.apartmentSize, closeTo(62.0, 0.001));
+      expect(r.prepaid, closeTo(1980.0, 0.001));
+      expect(r.periodStart, DateTime(2024, 1, 1));
+      expect(r.periodEnd, DateTime(2024, 12, 31));
+      expect(r.amounts.length, 9);
+      expect(r.amounts['heizung'], closeTo(1020.0, 0.001));
+      expect(r.amounts['reinigung'], closeTo(260.0, 0.001));
+      expect(r.amounts['versicherung'], closeTo(230.0, 0.001));
+    }
+
+    test('Word (.docx via mammoth): blank-line paragraphs, real m²', () {
+      expectAll(StatementParser.parse('${[...header, ...items].join('\n\n')}\n\n'));
+    });
+
+    test('Plain text (.txt via FileReader): CRLF line endings', () {
+      expectAll(StatementParser.parse('${[...header, ...items].join('\r\n')}\r\n'));
+    });
+  });
 }

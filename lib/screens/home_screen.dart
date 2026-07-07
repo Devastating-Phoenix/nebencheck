@@ -140,7 +140,7 @@ class HomeScreen extends StatelessWidget {
               child: Text(tr('See a demo analysis', 'Demo-Analyse ansehen')),
             ),
             const SizedBox(height: 10),
-            const _UploadButton(),
+            const _ImportButtons(),
             if (history.isNotEmpty) ...[
               const SizedBox(height: 30),
               Row(
@@ -263,42 +263,44 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-/// "Upload a photo of your statement" (beta): runs on-device OCR, parses the
-/// text, and prefills the form for the user to review. Web-only; elsewhere the
-/// OCR bridge is inert and the tap just reports that nothing was found.
-class _UploadButton extends StatefulWidget {
-  const _UploadButton();
+/// Two beta import options — a camera photo (OCR) or a document (Word / PDF /
+/// text, read directly). Both run on-device, parse the text, and prefill the
+/// form for the user to review before analyzing. Web-only; elsewhere the
+/// bridge is inert and the tap just reports that nothing was found.
+class _ImportButtons extends StatefulWidget {
+  const _ImportButtons();
 
   @override
-  State<_UploadButton> createState() => _UploadButtonState();
+  State<_ImportButtons> createState() => _ImportButtonsState();
 }
 
-class _UploadButtonState extends State<_UploadButton> {
+class _ImportButtonsState extends State<_ImportButtons> {
   bool _running = false;
-  double _progress = 0;
+  int? _active; // 0 = photo, 1 = document
 
-  Future<void> _run() async {
+  Future<void> _run(int which, Future<String?> Function() source) async {
     if (_running) return;
     setState(() {
       _running = true;
-      _progress = 0;
+      _active = which;
     });
     String? text;
     try {
-      text = await pickAndRecognize(
-        onProgress: (p) {
-          if (mounted) setState(() => _progress = p);
-        },
-      );
+      text = await source();
     } finally {
-      if (mounted) setState(() => _running = false);
+      if (mounted) {
+        setState(() {
+          _running = false;
+          _active = null;
+        });
+      }
     }
     if (!mounted) return;
 
     if (text == null || text.trim().isEmpty) {
       _snack(tr(
-        "Couldn't read that image. Try a sharper, straight-on photo in good light — or enter the numbers manually.",
-        'Das Bild konnte nicht gelesen werden. Versuchen Sie ein schärferes, gerades Foto bei gutem Licht — oder geben Sie die Zahlen manuell ein.',
+        "Couldn't read that file. For a photo, use a sharp, straight-on shot in good light; for a PDF, make sure the text is selectable (not a scan). Or enter the numbers manually.",
+        'Die Datei konnte nicht gelesen werden. Foto: scharf, gerade, gutes Licht; PDF: Text muss markierbar sein (kein Scan). Oder Zahlen manuell eingeben.',
       ));
       return;
     }
@@ -326,36 +328,54 @@ class _UploadButtonState extends State<_UploadButton> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
-  @override
-  Widget build(BuildContext context) {
-    if (_running) {
-      return OutlinedButton(
-        onPressed: null,
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
+  Widget _button(
+    int which,
+    IconData icon,
+    String label,
+    Future<String?> Function() source,
+  ) {
+    final busy = _running && _active == which;
+    return OutlinedButton.icon(
+      onPressed: _running ? null : () => _run(which, source),
+      icon: busy
+          ? const SizedBox(
               width: 16,
               height: 16,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                value: _progress > 0 ? _progress : null,
-              ),
-            ),
-            const SizedBox(width: 10),
-            Text(_progress > 0
-                ? tr('Reading… ${(_progress * 100).round()}%',
-                    'Lese… ${(_progress * 100).round()}%')
-                : tr('Reading photo…', 'Foto wird gelesen…')),
-          ],
+              child: CircularProgressIndicator(strokeWidth: 2),
+            )
+          : Icon(icon, size: 19),
+      label: Text(busy ? tr('Reading…', 'Wird gelesen…') : label),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        _button(
+          0,
+          Icons.photo_camera_outlined,
+          tr('Take a photo (beta)', 'Foto aufnehmen (Beta)'),
+          () => pickAndRecognize(),
         ),
-      );
-    }
-    return OutlinedButton.icon(
-      onPressed: _run,
-      icon: const Icon(Icons.photo_camera_outlined, size: 19),
-      label: Text(tr('Upload a photo of your statement (beta)',
-          'Foto der Abrechnung hochladen (Beta)')),
+        const SizedBox(height: 10),
+        _button(
+          1,
+          Icons.description_outlined,
+          tr('Upload a document (beta)', 'Dokument hochladen (Beta)'),
+          () => pickAndReadDocument(),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          tr('Word, PDF, text, or an image — read on your device, nothing is uploaded.',
+              'Word, PDF, Text oder Bild — auf Ihrem Gerät gelesen, nichts wird hochgeladen.'),
+          style: const TextStyle(
+            fontSize: 11.5,
+            color: AppColors.inkSoft,
+            height: 1.4,
+          ),
+        ),
+      ],
     );
   }
 }
