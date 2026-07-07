@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:shared_preferences/shared_preferences.dart';
@@ -57,8 +58,8 @@ class Storage {
         'end': d.periodEnd.toIso8601String(),
         'received': d.receivedDate.toIso8601String(),
         'prepaid': d.prepaid,
-        'tenant': d.tenantName,
-        'landlord': d.landlordName,
+        // Privacy: tenant/landlord names are deliberately NOT persisted to the
+        // device. They live only in memory for the current session's letter.
         'cityId': d.cityId,
         'heating': d.heatingBilling,
         'entries': {
@@ -105,16 +106,31 @@ class Storage {
     );
   }
 
+  /// Strips tenant/landlord names from a stored entry (cleans data written by
+  /// older versions that used to persist them).
+  static Map<String, dynamic> _scrubNames(Map<String, dynamic> entry) {
+    final stmt = entry['statement'];
+    if (stmt is Map) {
+      stmt.remove('tenant');
+      stmt.remove('landlord');
+    }
+    return entry;
+  }
+
   static Future<List<CheckSummary>> loadHistory() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final raw = prefs.getString(_historyKey);
       if (raw == null || raw.isEmpty) return [];
       final list = jsonDecode(raw) as List;
-      return [
+      final history = [
         for (final e in list)
-          CheckSummary.fromJson(Map<String, dynamic>.from(e as Map)),
+          CheckSummary.fromJson(_scrubNames(Map<String, dynamic>.from(e as Map))),
       ];
+      // One-time cleanup: rewrite storage so any names saved by older versions
+      // are actually removed from the device, not merely hidden from the UI.
+      unawaited(saveHistory(history));
+      return history;
     } catch (_) {
       // Corrupt or legacy data: start fresh rather than crash the app.
       return [];
