@@ -140,7 +140,7 @@ class HomeScreen extends StatelessWidget {
               child: Text(tr('See a demo analysis', 'Demo-Analyse ansehen')),
             ),
             const SizedBox(height: 10),
-            const _ImportButtons(),
+            const _ImportButton(),
             if (history.isNotEmpty) ...[
               const SizedBox(height: 30),
               Row(
@@ -263,37 +263,98 @@ class HomeScreen extends StatelessWidget {
   }
 }
 
-/// Two beta import options — a camera photo (OCR) or a document (Word / PDF /
-/// text, read directly). Both run on-device, parse the text, and prefill the
-/// form for the user to review before analyzing. Web-only; elsewhere the
-/// bridge is inert and the tap just reports that nothing was found.
-class _ImportButtons extends StatefulWidget {
-  const _ImportButtons();
+/// One beta import button. Tapping it opens a chooser between a camera photo
+/// (OCR) and a document (Word / PDF / text, read directly). Both run on-device,
+/// parse the text, and prefill the form for the user to review before
+/// analyzing. Web-only; elsewhere the bridge is inert.
+class _ImportButton extends StatefulWidget {
+  const _ImportButton();
 
   @override
-  State<_ImportButtons> createState() => _ImportButtonsState();
+  State<_ImportButton> createState() => _ImportButtonState();
 }
 
-class _ImportButtonsState extends State<_ImportButtons> {
+class _ImportButtonState extends State<_ImportButton> {
   bool _running = false;
-  int? _active; // 0 = photo, 1 = document
 
-  Future<void> _run(int which, Future<String?> Function() source) async {
+  void _openChooser() {
     if (_running) return;
-    setState(() {
-      _running = true;
-      _active = which;
-    });
+    showModalBottomSheet<void>(
+      context: context,
+      backgroundColor: AppColors.card,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
+      ),
+      builder: (sheetCtx) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 4),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  tr('Add your statement', 'Abrechnung hinzufügen'),
+                  style: AppText.display(size: 19),
+                ),
+              ),
+            ),
+            _option(
+              sheetCtx,
+              Icons.photo_camera_outlined,
+              tr('Take a photo', 'Foto aufnehmen'),
+              tr('Use your camera', 'Mit der Kamera'),
+              () => pickAndRecognize(),
+            ),
+            _option(
+              sheetCtx,
+              Icons.description_outlined,
+              tr('Choose a document', 'Dokument wählen'),
+              tr('Word, PDF, or text file', 'Word-, PDF- oder Textdatei'),
+              () => pickAndReadDocument(),
+            ),
+            const SizedBox(height: 8),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _option(
+    BuildContext sheetCtx,
+    IconData icon,
+    String title,
+    String subtitle,
+    Future<String?> Function() source,
+  ) {
+    return ListTile(
+      leading: Icon(icon, color: AppColors.primary),
+      title: Text(
+        title,
+        style: const TextStyle(
+          fontWeight: FontWeight.w700,
+          color: AppColors.ink,
+        ),
+      ),
+      subtitle: Text(subtitle,
+          style: const TextStyle(color: AppColors.inkSoft, fontSize: 12.5)),
+      // Trigger the file pick synchronously within this tap (so mobile keeps
+      // the user-activation the picker needs), then close the sheet.
+      onTap: () {
+        _run(source);
+        Navigator.pop(sheetCtx);
+      },
+    );
+  }
+
+  Future<void> _run(Future<String?> Function() source) async {
+    if (_running) return;
+    setState(() => _running = true);
     String? text;
     try {
       text = await source();
     } finally {
-      if (mounted) {
-        setState(() {
-          _running = false;
-          _active = null;
-        });
-      }
+      if (mounted) setState(() => _running = false);
     }
     if (!mounted) return;
 
@@ -328,47 +389,36 @@ class _ImportButtonsState extends State<_ImportButtons> {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
-  Widget _button(
-    int which,
-    IconData icon,
-    String label,
-    Future<String?> Function() source,
-  ) {
-    final busy = _running && _active == which;
-    return OutlinedButton.icon(
-      onPressed: _running ? null : () => _run(which, source),
-      icon: busy
-          ? const SizedBox(
-              width: 16,
-              height: 16,
-              child: CircularProgressIndicator(strokeWidth: 2),
-            )
-          : Icon(icon, size: 19),
-      label: Text(busy ? tr('Reading…', 'Wird gelesen…') : label),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _button(
-          0,
-          Icons.photo_camera_outlined,
-          tr('Take a photo (beta)', 'Foto aufnehmen (Beta)'),
-          () => pickAndRecognize(),
-        ),
-        const SizedBox(height: 10),
-        _button(
-          1,
-          Icons.description_outlined,
-          tr('Upload a document (beta)', 'Dokument hochladen (Beta)'),
-          () => pickAndReadDocument(),
-        ),
+        _running
+            ? OutlinedButton(
+                onPressed: null,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const SizedBox(
+                      width: 16,
+                      height: 16,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    ),
+                    const SizedBox(width: 10),
+                    Text(tr('Reading…', 'Wird gelesen…')),
+                  ],
+                ),
+              )
+            : OutlinedButton.icon(
+                onPressed: _openChooser,
+                icon: const Icon(Icons.upload_file_outlined, size: 19),
+                label: Text(tr('Upload your statement (beta)',
+                    'Abrechnung hochladen (Beta)')),
+              ),
         const SizedBox(height: 6),
         Text(
-          tr('Word, PDF, text, or an image — read on your device, nothing is uploaded.',
-              'Word, PDF, Text oder Bild — auf Ihrem Gerät gelesen, nichts wird hochgeladen.'),
+          tr('Photo, Word, PDF or text — read on your device, nothing is uploaded.',
+              'Foto, Word, PDF oder Text — auf Ihrem Gerät gelesen, nichts wird hochgeladen.'),
           style: const TextStyle(
             fontSize: 11.5,
             color: AppColors.inkSoft,
