@@ -358,6 +358,14 @@ class _ImportButtonState extends State<_ImportButton> {
     }
     if (!mounted) return;
 
+    if (text == '__WRONGTYPE__') {
+      _snack(tr(
+        'That file type doesn\'t fit this option. Use "Take a photo" for images, and "Choose a document" for Word, PDF, or text.',
+        'Dieser Dateityp passt nicht zu dieser Option. „Foto aufnehmen" für Bilder, „Dokument wählen" für Word, PDF oder Text.',
+      ));
+      return;
+    }
+
     if (text == null || text.trim().isEmpty) {
       _snack(tr(
         "Couldn't read that file. For a photo, use a sharp, straight-on shot in good light; for a PDF, make sure the text is selectable (not a scan). Or enter the numbers manually.",

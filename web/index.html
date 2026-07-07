@@ -63,23 +63,34 @@
       });
     }
 
-    // File -> plain text. Images go through OCR; Word/PDF/text yield their
-    // embedded text directly (much more accurate than OCR).
-    async function ncExtract(file) {
+    // File -> plain text. The photo option (cameraOnly) accepts only images
+    // (OCR); the document option accepts only Word/PDF/text (embedded text,
+    // much more accurate than OCR). A file of the wrong kind for the chosen
+    // option is rejected. Returns "__WRONGTYPE__" when the kind doesn't match.
+    async function ncExtract(file, cameraOnly) {
       var name = (file.name || '').toLowerCase();
       var type = file.type || '';
+      var isImage = type.indexOf('image/') === 0 ||
+        /\.(jpe?g|png|gif|bmp|webp|heic|heif|tiff?)$/.test(name);
+      var isPdf = type === 'application/pdf' || name.endsWith('.pdf');
+      var isDocx = name.endsWith('.docx');
+      var isDoc = name.endsWith('.doc');
+      var isTxt = type === 'text/plain' || name.endsWith('.txt');
       try {
-        if (type.indexOf('image/') === 0) {
+        if (cameraOnly) {
+          if (!isImage) return '__WRONGTYPE__';
           if (typeof Tesseract === 'undefined') return '';
           var ocr = await Tesseract.recognize(file, 'deu');
           return (ocr && ocr.data && ocr.data.text) || '';
         }
-        if (name.endsWith('.docx') && typeof mammoth !== 'undefined') {
+        // Document option: no images allowed.
+        if (isImage) return '__WRONGTYPE__';
+        if (isDocx && typeof mammoth !== 'undefined') {
           var buf = await ncBuffer(file);
           var res = await mammoth.extractRawText({ arrayBuffer: buf });
           return (res && res.value) || '';
         }
-        if ((name.endsWith('.pdf') || type === 'application/pdf') && window.pdfjsLib) {
+        if (isPdf && window.pdfjsLib) {
           var buf2 = await ncBuffer(file);
           var pdf = await window.pdfjsLib.getDocument({ data: buf2 }).promise;
           var out = '';
@@ -90,8 +101,8 @@
           }
           return out;
         }
-        // .txt and anything else: read as text.
-        return await ncText(file);
+        if (isTxt || isDoc) return await ncText(file);
+        return '__WRONGTYPE__';
       } catch (e) {
         return '';
       }
@@ -107,7 +118,7 @@
           input.accept = 'image/*';
           input.setAttribute('capture', 'environment');
         } else {
-          input.accept = '.docx,.pdf,.txt,.doc,image/*';
+          input.accept = '.docx,.doc,.pdf,.txt';
         }
         // Mobile browsers only open the picker for an input that is in the DOM.
         input.style.position = 'fixed';
@@ -125,7 +136,7 @@
         input.onchange = function () {
           var file = input.files && input.files[0];
           if (!file) { finish(''); return; }
-          ncExtract(file).then(function (t) { finish(t || ''); }).catch(function () { finish(''); });
+          ncExtract(file, cameraOnly).then(function (t) { finish(t || ''); }).catch(function () { finish(''); });
         };
         input.oncancel = function () { finish(''); };
         document.body.appendChild(input);
