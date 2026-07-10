@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 /// Design tokens: "Der Prüfbogen" — the German audit form.
 ///
@@ -53,7 +52,10 @@ ThemeData buildTheme() {
 
   return base.copyWith(
     scaffoldBackgroundColor: AppColors.paper,
-    textTheme: GoogleFonts.barlowTextTheme(base.textTheme).apply(
+    // Fonts are bundled assets (see pubspec) — nothing is fetched from
+    // Google at runtime.
+    textTheme: base.textTheme.apply(
+      fontFamily: 'Barlow',
       bodyColor: AppColors.ink,
       displayColor: AppColors.ink,
     ),
@@ -63,7 +65,8 @@ ThemeData buildTheme() {
       scrolledUnderElevation: 0,
       foregroundColor: AppColors.ink,
       centerTitle: false,
-      titleTextStyle: GoogleFonts.barlowCondensed(
+      titleTextStyle: const TextStyle(
+        fontFamily: 'BarlowCondensed',
         fontSize: 20,
         fontWeight: FontWeight.w600,
         letterSpacing: 0.6,
@@ -73,7 +76,8 @@ ThemeData buildTheme() {
     dividerColor: AppColors.line,
     snackBarTheme: SnackBarThemeData(
       backgroundColor: AppColors.ink,
-      contentTextStyle: GoogleFonts.barlow(
+      contentTextStyle: const TextStyle(
+        fontFamily: 'Barlow',
         color: AppColors.paper,
         fontSize: 14,
         fontWeight: FontWeight.w600,
@@ -100,7 +104,8 @@ ThemeData buildTheme() {
         foregroundColor: AppColors.onPrimary,
         minimumSize: const Size.fromHeight(52),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
-        textStyle: GoogleFonts.barlowCondensed(
+        textStyle: const TextStyle(
+          fontFamily: 'BarlowCondensed',
           fontSize: 17,
           fontWeight: FontWeight.w600,
           letterSpacing: 1.6,
@@ -113,7 +118,8 @@ ThemeData buildTheme() {
         minimumSize: const Size.fromHeight(52),
         side: const BorderSide(color: AppColors.primary, width: 1.3),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(3)),
-        textStyle: GoogleFonts.barlowCondensed(
+        textStyle: const TextStyle(
+          fontFamily: 'BarlowCondensed',
           fontSize: 17,
           fontWeight: FontWeight.w600,
           letterSpacing: 1.6,
@@ -132,12 +138,17 @@ class AppText {
     FontWeight weight = FontWeight.w700,
     Color color = AppColors.ink,
   }) =>
-      GoogleFonts.courierPrime(
-          fontSize: size, fontWeight: weight, color: color);
+      TextStyle(
+        fontFamily: 'CourierPrime',
+        fontSize: size,
+        fontWeight: weight,
+        color: color,
+      );
 
   /// Condensed DIN-style display for headlines and form heads.
   static TextStyle display({double size = 30, Color color = AppColors.ink}) =>
-      GoogleFonts.barlowCondensed(
+      TextStyle(
+        fontFamily: 'BarlowCondensed',
         fontSize: size,
         fontWeight: FontWeight.w700,
         height: 1.02,
@@ -147,7 +158,8 @@ class AppText {
 
   /// Small uppercase form label, printed in Amtsgrün.
   static TextStyle label({Color color = AppColors.primary}) =>
-      GoogleFonts.barlowCondensed(
+      TextStyle(
+        fontFamily: 'BarlowCondensed',
         fontSize: 13,
         fontWeight: FontWeight.w600,
         letterSpacing: 2.2,

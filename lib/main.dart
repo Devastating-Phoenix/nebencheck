@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show rootBundle;
 import 'package:provider/provider.dart';
 
 import 'screens/home_screen.dart';
@@ -6,6 +8,19 @@ import 'state/app_state.dart';
 import 'theme.dart';
 
 void main() {
+  // Bundled fonts (Barlow, Barlow Condensed, Courier Prime) are SIL OFL —
+  // surface their licenses in the standard Flutter license page.
+  LicenseRegistry.addLicense(() async* {
+    for (final file in [
+      'assets/fonts/OFL-Barlow.txt',
+      'assets/fonts/OFL-CourierPrime.txt',
+    ]) {
+      yield LicenseEntryWithLineBreaks(
+        ['bundled fonts'],
+        await rootBundle.loadString(file),
+      );
+    }
+  });
   runApp(const NebenCheckApp());
 }
 

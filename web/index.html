@@ -36,15 +36,26 @@
 
   <!-- Statement import (beta). Everything runs on-device — the file never
        leaves the browser. Tesseract.js = OCR for camera photos; mammoth.js =
-       Word (.docx) text; pdf.js = PDF text. -->
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/mammoth@1.8.0/mammoth.browser.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.min.js"></script>
+       Word (.docx) text; pdf.js = PDF text. All libraries (and the German
+       OCR model) are self-hosted under vendor/ so no request ever reaches a
+       third-party CDN — no user IP leaves the site (DSGVO). -->
+  <script src="vendor/tesseract/tesseract.min.js"></script>
+  <script src="vendor/mammoth.browser.min.js"></script>
+  <script src="vendor/pdfjs/pdf.min.js"></script>
   <script>
     if (window.pdfjsLib) {
-      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
-        'https://cdn.jsdelivr.net/npm/pdfjs-dist@3.11.174/legacy/build/pdf.worker.min.js';
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc = 'vendor/pdfjs/pdf.worker.min.js';
     }
+
+    // Self-hosted Tesseract paths: worker JS, wasm cores, and language data.
+    // Must be ABSOLUTE URLs: tesseract runs in a blob: worker, where relative
+    // URLs cannot be resolved (importScripts throws on them).
+    function ncAbs(p) { return new URL(p, document.baseURI).href; }
+    var NC_TESS_OPTS = {
+      workerPath: ncAbs('vendor/tesseract/worker.min.js'),
+      corePath: ncAbs('vendor/tesseract/core'),
+      langPath: ncAbs('vendor/tessdata'),
+    };
 
     function ncBuffer(file) {
       return new Promise(function (resolve, reject) {
@@ -80,7 +91,7 @@
         if (cameraOnly) {
           if (!isImage) return '__WRONGTYPE__';
           if (typeof Tesseract === 'undefined') return '';
-          var ocr = await Tesseract.recognize(file, 'deu');
+          var ocr = await Tesseract.recognize(file, 'deu', NC_TESS_OPTS);
           return (ocr && ocr.data && ocr.data.text) || '';
         }
         // Document option: no images allowed.

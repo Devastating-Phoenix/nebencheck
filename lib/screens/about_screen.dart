@@ -6,6 +6,7 @@ import '../theme.dart';
 import '../ui/common.dart';
 import '../util/l10n.dart';
 import '../util/save_file.dart';
+import 'legal_screen.dart';
 
 /// "Anlage" to the audit form: what NebenCheck does, why the city
 /// matters, how the score works, and what the limits are.
@@ -163,6 +164,31 @@ class AboutScreen extends StatelessWidget {
             )),
             const SizedBox(height: 12),
             _RepoLink(),
+            const SizedBox(height: 4),
+            InkWell(
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const LegalScreen()),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 6),
+                child: Row(
+                  children: [
+                    const Icon(Icons.balance_rounded,
+                        size: 16, color: AppColors.primary),
+                    const SizedBox(width: 8),
+                    Text(
+                      tr('Legal notice & privacy →', 'Impressum & Datenschutz →'),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        height: 1.4,
+                        color: AppColors.primary,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ],
         ),
       ),

@@ -11,6 +11,7 @@ import '../ui/common.dart';
 import '../util/format.dart';
 import '../util/l10n.dart';
 import 'about_screen.dart';
+import 'legal_screen.dart';
 import 'results_screen.dart';
 import 'statement_form_screen.dart';
 
@@ -254,6 +255,23 @@ class HomeScreen extends StatelessWidget {
                 fontSize: 12,
                 color: AppColors.inkSoft,
                 height: 1.5,
+              ),
+            ),
+            const SizedBox(height: 6),
+            InkWell(
+              onTap: () => Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const LegalScreen()),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(vertical: 3),
+                child: Text(
+                  tr('Legal notice & privacy', 'Impressum & Datenschutz'),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.primary,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
               ),
             ),
           ],
