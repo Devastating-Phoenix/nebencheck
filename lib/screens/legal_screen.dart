@@ -4,14 +4,12 @@ import '../theme.dart';
 import '../ui/common.dart';
 import '../util/l10n.dart';
 
-// ---------------------------------------------------------------------------
-// FILL THESE IN BEFORE A PUBLIC LAUNCH. § 5 DDG requires the operator's real
-// name and a loadable postal address (no P.O. box); an email is mandatory.
-// ---------------------------------------------------------------------------
-const _operatorName = '[VOR- UND NACHNAME]';
-const _operatorStreet = '[STRASSE UND HAUSNUMMER]';
-const _operatorCity = '[PLZ UND ORT]';
-const _operatorEmail = '[E-MAIL-ADRESSE]';
+// Operator (§ 5 DDG). A foreign address is valid — it must simply be a real,
+// reachable postal address.
+const _operatorName = 'Mohsin Hadi';
+const _operatorStreet = 'Lake City';
+const _operatorCity = 'Lahore, Pakistan';
+const _operatorEmail = 'mohsinhadi728@gmail.com';
 
 /// Impressum (§ 5 DDG) and Datenschutzerklärung (Art. 13 DSGVO).
 ///
