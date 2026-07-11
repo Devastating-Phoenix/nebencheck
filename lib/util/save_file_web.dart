@@ -1,4 +1,6 @@
-// ignore: avoid_web_libraries_in_flutter
+// TODO(migration): move to package:web + dart:js_interop once the pinned
+// Flutter SDK is bumped; dart:html still works but is deprecated.
+// ignore: avoid_web_libraries_in_flutter, deprecated_member_use
 import 'dart:html' as html;
 import 'dart:typed_data';
 

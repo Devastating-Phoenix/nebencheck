@@ -61,7 +61,7 @@ class Storage {
         // Privacy: tenant/landlord names are deliberately NOT persisted to the
         // device. They live only in memory for the current session's letter.
         'cityId': d.cityId,
-        'heating': d.heatingBilling,
+        'heating': d.heatingBilling.name,
         'entries': {
           for (final e in d.entries)
             if (e.included || e.amount > 0)
@@ -85,7 +85,7 @@ class Storage {
       tenantName: (j['tenant'] as String?) ?? '',
       landlordName: (j['landlord'] as String?) ?? '',
       cityId: (j['cityId'] as String?) ?? 'de',
-      heatingBilling: (j['heating'] as String?) ?? 'unknown',
+      heatingBilling: HeatingBilling.fromName(j['heating'] as String?),
       entries: [
         for (final c in kCategories)
           CostEntry(

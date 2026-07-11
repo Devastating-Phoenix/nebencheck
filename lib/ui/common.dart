@@ -49,7 +49,7 @@ class SectionLabel extends StatelessWidget {
           Expanded(
             child: Container(
               height: 0.8,
-              color: AppColors.primary.withOpacity(0.35),
+              color: AppColors.primary.withValues(alpha: 0.35),
             ),
           ),
         ],
@@ -121,19 +121,20 @@ class Stamp extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2.5),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(2),
-          border: Border.all(color: color.withOpacity(0.85), width: 1.8),
+          border: Border.all(color: color.withValues(alpha: 0.85), width: 1.8),
         ),
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1),
           decoration: BoxDecoration(
-            border: Border.all(color: color.withOpacity(0.55), width: 0.8),
+            border:
+                Border.all(color: color.withValues(alpha: 0.55), width: 0.8),
           ),
           child: Text(
             text.toUpperCase(),
             textAlign: TextAlign.center,
             softWrap: false,
             style: TextStyle(
-              color: color.withOpacity(0.92),
+              color: color.withValues(alpha: 0.92),
               fontSize: size,
               fontWeight: FontWeight.w800,
               letterSpacing: 1.3,
@@ -215,7 +216,7 @@ class BenchmarkBar extends StatelessWidget {
                 child: Container(
                   width: w * value,
                   height: 5,
-                  color: color.withOpacity(0.9),
+                  color: color.withValues(alpha: 0.9),
                 ),
               ),
             ),
@@ -251,7 +252,7 @@ InputDecoration fieldDecoration(String label, {String? hint, String? suffix}) {
       fontSize: 14.5,
       letterSpacing: 0.3,
     ),
-    hintStyle: TextStyle(color: AppColors.inkSoft.withOpacity(0.6)),
+    hintStyle: TextStyle(color: AppColors.inkSoft.withValues(alpha: 0.6)),
     suffixStyle: const TextStyle(color: AppColors.inkSoft),
     contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
     border: border(AppColors.lineStrong),

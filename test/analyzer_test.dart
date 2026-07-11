@@ -47,7 +47,7 @@ void main() {
 
   test('flat-rate heating triggers the 15% cut (§ 12 HeizKV)', () {
     final heizung = kCategories.firstWhere((c) => c.id == 'heizung');
-    StatementData withHeating(String billing) => StatementData(
+    StatementData withHeating(HeatingBilling billing) => StatementData(
           apartmentSize: 60,
           periodStart: DateTime(2024, 1, 1),
           periodEnd: DateTime(2024, 12, 31),
@@ -58,8 +58,9 @@ void main() {
           customItems: [],
         );
 
-    final flat = Analyzer.analyze(withHeating('flat'));
-    final consumption = Analyzer.analyze(withHeating('consumption'));
+    final flat = Analyzer.analyze(withHeating(HeatingBilling.flat));
+    final consumption =
+        Analyzer.analyze(withHeating(HeatingBilling.consumption));
 
     expect(flat.heatingCut, closeTo(150, 0.01));
     expect(flat.potentialSavings,

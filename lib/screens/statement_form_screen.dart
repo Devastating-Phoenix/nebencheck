@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../data/cities.dart';
+import '../models/models.dart';
 import '../state/app_state.dart';
 import '../theme.dart';
 import '../ui/common.dart';
@@ -26,7 +27,7 @@ class _StatementFormScreenState extends State<StatementFormScreen> {
   late DateTime _end;
   late DateTime _received;
   late String _cityId;
-  late String _heating;
+  late HeatingBilling _heating;
 
   @override
   void initState() {
@@ -122,7 +123,7 @@ class _StatementFormScreenState extends State<StatementFormScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   DropdownButtonFormField<String>(
-                    value: _cityId,
+                    initialValue: _cityId,
                     isExpanded: true,
                     decoration:
                         fieldDecoration(tr('City / region', 'Stadt / Region')),
@@ -241,8 +242,8 @@ class _StatementFormScreenState extends State<StatementFormScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  DropdownButtonFormField<String>(
-                    value: _heating,
+                  DropdownButtonFormField<HeatingBilling>(
+                    initialValue: _heating,
                     isExpanded: true,
                     decoration: fieldDecoration(tr(
                         'Billed by consumption (≥50%)?',
@@ -255,21 +256,22 @@ class _StatementFormScreenState extends State<StatementFormScreen> {
                     ),
                     items: [
                       DropdownMenuItem(
-                        value: 'unknown',
+                        value: HeatingBilling.unknown,
                         child: Text(tr('Not sure', 'Weiß ich nicht')),
                       ),
                       DropdownMenuItem(
-                        value: 'consumption',
+                        value: HeatingBilling.consumption,
                         child: Text(tr('Yes — billed by consumption',
                             'Ja — verbrauchsabhängig')),
                       ),
                       DropdownMenuItem(
-                        value: 'flat',
+                        value: HeatingBilling.flat,
                         child: Text(
                             tr('No — flat rate only', 'Nein — nur pauschal')),
                       ),
                     ],
-                    onChanged: (v) => setState(() => _heating = v ?? 'unknown'),
+                    onChanged: (v) =>
+                        setState(() => _heating = v ?? HeatingBilling.unknown),
                   ),
                   const SizedBox(height: 8),
                   Text(

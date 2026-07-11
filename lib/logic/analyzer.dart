@@ -63,7 +63,7 @@ class Analyzer {
       }
     }
     final heatingCut =
-        data.heatingBilling == 'flat' && heatingAmount > 0
+        data.heatingBilling == HeatingBilling.flat && heatingAmount > 0
             ? heatingAmount * 0.15
             : 0.0;
     savings += heatingCut;
@@ -84,7 +84,7 @@ class Analyzer {
             ),
             status: CheckStatus.failed,
           )
-        : data.heatingBilling == 'consumption'
+        : data.heatingBilling == HeatingBilling.consumption
             ? FormalCheck(
                 title: tr('Heating billed by consumption',
                     'Verbrauchsabhängige Heizkostenabrechnung'),

@@ -45,6 +45,23 @@ class CustomItem {
   CustomItem({this.name = '', this.amount = 0});
 }
 
+/// How heating is billed on the statement (§ 12 HeizKV).
+enum HeatingBilling {
+  /// The tenant doesn't know — no finding either way.
+  unknown,
+
+  /// ≥ 50 % by actual consumption, as the Heizkostenverordnung requires.
+  consumption,
+
+  /// Flat rate only — entitles the tenant to a 15 % cut (§ 12 HeizKV).
+  flat;
+
+  /// Parses a persisted [name], falling back to [unknown] so old or
+  /// hand-edited storage never crashes the app.
+  static HeatingBilling fromName(String? name) => HeatingBilling.values
+      .firstWhere((v) => v.name == name, orElse: () => HeatingBilling.unknown);
+}
+
 /// Everything the user copied in from their paper statement.
 class StatementData {
   double apartmentSize; // m²
@@ -59,10 +76,7 @@ class StatementData {
   /// values to the regional cost level; 'de' = national average.
   String cityId;
 
-  /// How heating is billed: 'unknown' (default), 'consumption'
-  /// (≥50% by actual consumption, as the Heizkostenverordnung requires)
-  /// or 'flat' (flat rate only → 15% cut right, § 12 HeizKV).
-  String heatingBilling;
+  HeatingBilling heatingBilling;
 
   List<CostEntry> entries;
   List<CustomItem> customItems;
@@ -76,7 +90,7 @@ class StatementData {
     this.tenantName = '',
     this.landlordName = '',
     this.cityId = 'de',
-    this.heatingBilling = 'unknown',
+    this.heatingBilling = HeatingBilling.unknown,
     required this.entries,
     required this.customItems,
   });

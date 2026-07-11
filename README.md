@@ -3,7 +3,7 @@
 **Audit your German Nebenkostenabrechnung — in your browser, on your device, in about three minutes.**
 
 [![Live](https://img.shields.io/badge/live-nebencheck--ten.vercel.app-2F6A4F)](https://nebencheck-ten.vercel.app)
-[![Tests](https://img.shields.io/badge/tests-52%20passing-2F6A4F)](test/)
+[![CI](https://github.com/Devastating-Phoenix/nebencheck/actions/workflows/ci.yml/badge.svg)](https://github.com/Devastating-Phoenix/nebencheck/actions/workflows/ci.yml)
 [![Built with Flutter](https://img.shields.io/badge/built%20with-Flutter%20Web-02569B)](https://flutter.dev)
 [![License](https://img.shields.io/badge/license-PolyForm%20Noncommercial-8A7B0A)](LICENSE)
 

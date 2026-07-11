@@ -218,7 +218,7 @@ class _PositionsScreenState extends State<PositionsScreen> {
                 ),
                 Switch(
                   value: e.included,
-                  activeColor: AppColors.primary,
+                  activeThumbColor: AppColors.primary,
                   onChanged: (v) => setState(() => e.included = v),
                 ),
               ],

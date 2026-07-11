@@ -59,13 +59,13 @@ ThemeData buildTheme() {
       bodyColor: AppColors.ink,
       displayColor: AppColors.ink,
     ),
-    appBarTheme: AppBarTheme(
+    appBarTheme: const AppBarTheme(
       backgroundColor: AppColors.paper,
       elevation: 0,
       scrolledUnderElevation: 0,
       foregroundColor: AppColors.ink,
       centerTitle: false,
-      titleTextStyle: const TextStyle(
+      titleTextStyle: TextStyle(
         fontFamily: 'BarlowCondensed',
         fontSize: 20,
         fontWeight: FontWeight.w600,
