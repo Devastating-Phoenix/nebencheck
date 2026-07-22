@@ -3,11 +3,13 @@
 // ignore: avoid_web_libraries_in_flutter, deprecated_member_use
 import 'dart:html' as html;
 
-/// The canonical reference file, served from the repository's `main` branch.
-/// A merged pull request to `references.json` goes live here within minutes —
-/// no app rebuild or redeploy needed.
-const _referencesUrl =
-    'https://raw.githubusercontent.com/Devastating-Phoenix/nebencheck/main/references.json';
+/// The canonical reference file. Served same-origin: a Vercel rewrite
+/// (web/vercel.json) proxies this path to the repository's `main` branch, so
+/// a merged pull request to `references.json` still goes live within minutes
+/// with no rebuild — but the user's browser only ever talks to the app's own
+/// origin (DSGVO: no user IP reaches GitHub). In local dev there is no proxy,
+/// so the fetch 404s and the app runs on its compiled-in defaults.
+const _referencesUrl = 'references.json';
 
 Future<String?> fetchReferences() async {
   try {

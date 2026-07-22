@@ -75,13 +75,15 @@ won't.
   analysis and PDF generation all run in the browser. There is no backend that
   ever sees a statement.
 - **Enforced, not promised.** A strict `Content-Security-Policy` limits
-  `connect-src` to the app's own origin plus one public GitHub data file — the
-  browser itself blocks any script from sending data anywhere else. Plus HSTS,
-  `nosniff`, `frame-ancestors 'none'`, `Referrer-Policy: no-referrer`, and a
-  camera-only `Permissions-Policy`.
+  `connect-src` to the app's own origin only — the browser itself blocks any
+  script from sending data anywhere else. Plus HSTS, `nosniff`,
+  `frame-ancestors 'none'`, `Referrer-Policy: no-referrer`, and a camera-only
+  `Permissions-Policy`.
 - **Zero third-party requests.** Fonts, OCR models and all libraries are
   self-hosted — no Google Fonts (a documented GDPR problem in Germany, see
   LG München, 3 O 17493/20), no CDN, no cookies, no tracking, no analytics.
+  Even the live reference data is proxied through the app's own domain, so
+  the user's IP never reaches GitHub.
 - **Data minimisation.** Saved checks live only in the browser's localStorage,
   and tenant/landlord names are never persisted at all.
 - In-app **Impressum & Datenschutzerklärung** (§ 5 DDG / Art. 13 DSGVO).

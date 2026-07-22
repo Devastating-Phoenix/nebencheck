@@ -15,7 +15,8 @@ void downloadBytes(Uint8List bytes, String filename, String mimeType) {
   html.Url.revokeObjectUrl(url);
 }
 
-/// Opens [url] (e.g. a mailto: link) via the browser.
+/// Opens [url] (e.g. a mailto: link) via the browser. `noopener` severs the
+/// new page's window.opener handle back to the app (reverse tabnabbing).
 void openExternal(String url) {
-  html.window.open(url, '_blank');
+  html.window.open(url, '_blank', 'noopener');
 }
