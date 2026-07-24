@@ -1,0 +1,18 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$(python -c \"import sys,json;print(json.load(sys.stdin).get('tool_input',{}).get('file_path',''))\" 2>/dev/null); case \"$f\" in *.dart) out=$(cd /d/nebencheck/nebencheck && /d/flutter/bin/cache/dart-sdk/bin/dart.exe analyze --fatal-infos 2>&1) || { echo \"$out\" >&2; exit 2; } ;; esac; exit 0",
+            "asyncRewake": true,
+            "timeout": 240,
+            "statusMessage": "dart analyze (background)"
+          }
+        ]
+      }
+    ]
+  }
+}
